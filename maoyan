@@ -45,7 +45,7 @@ def write_to_file(content):
 def main():
 	for i in range(10):
 		offset = i*10
-	url = 'https://maoyan.com/board/4?offest=str(offset)' 
+	url = 'https://maoyan.com/board/4?offest=' + str(offset)
 	html = get_one_page(url)
 	for lily in parse_one_page(html):
 		print(lily)
