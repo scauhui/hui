@@ -1,0 +1,32 @@
+import re
+import requests
+
+def get_one_page(url): 
+	try:
+		headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 UBrowser/6.2.4094.1 Safari/537.36"
+        }
+        
+		response = requests.get(url, headers=headers)
+		if response.status_code == 200:
+			return response.text
+		return None
+	except RequestException:
+		return None
+
+
+def parse_one_page(html):  
+	pattern = pattern = re.compile('"title":"\w*"')       
+	items = re.findall(pattern, html)
+	for item in items:
+	    print(item)
+	    
+
+def main():
+	url = "http://www.acfun.cn/album/abm/bangumis/list?size=42&num=1&sorter=1&asc=0&isNew="
+	html = get_one_page(url)
+	#print(html)
+	parse_one_page(html)
+
+if __name__ == '__main__':
+	main()
