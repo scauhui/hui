@@ -1,0 +1,70 @@
+##encoding='utf-8'
+import requests
+import json
+import  re
+import pandas as pd
+import  csv
+from pymongo import MongoClient
+
+client = MongoClient()
+db = client['hmt']
+collection = db['hmt']
+
+
+with open('cookie.text', 'r', encoding='utf-8') as f:
+    cookie = f.read()
+    cookie = json.loads(cookie)
+
+
+
+response = requests.get('https://mp.weixin.qq.com/', cookies =cookie)
+token = re.findall(r'token=(.*)', response.url)[0] #debug  de出来
+
+first_url = "https://mp.weixin.qq.com/cgi-bin/searchbiz?"
+first_dict = {
+    'action': 'search_biz',
+    'token': token,
+    'lang': 'zh_CN',
+    'f': 'json',
+    'ajax': '1',
+    'random': '0.519849174288758',
+    'query': 'ithomenews',
+    'begin': '0',
+    'count': '5'
+}
+first_response = requests.get(first_url, cookies = cookie, params = first_dict)
+data = first_response.json()
+fakeid = data.get('list')[0].get('fakeid')  #debug 找fakeid
+
+
+second_dict = {
+    'token': token,
+    'lang': 'zh_CN',
+    'f': 'json',
+    'ajax': '1',
+    'random': '0.04492719835877512',
+    'action': 'list_ex',
+    'begin': '0',
+    'count': '5',
+    'query': '',
+    'fakeid': fakeid,
+    'type': '9'
+}
+second_url = "https://mp.weixin.qq.com/cgi-bin/appmsg?"
+second_response = requests.get(second_url, cookies = cookie, params = second_dict)
+wen = second_response.json().get('app_msg_list')
+
+
+df = pd.DataFrame(wen)
+pd.DataFrame(wen).to_csv('wenzhang.csv', index=False, encoding='utf-8_sig')
+print(df)
+
+for item in wen:
+    collection.insert(item)
+
+
+
+
+
+
+
