@@ -1,0 +1,85 @@
+##encoding='utf-8'
+import requests
+import json
+import  re
+import random
+
+
+
+
+
+with open('cookie.text', 'r', encoding='utf-8') as f:
+    cookie = f.read()
+    cookie = json.loads(cookie)
+
+
+
+response = requests.get('https://mp.weixin.qq.com/', cookies =cookie)
+token = re.findall(r'token=(.*)', response.url)[0] #debug  de出来
+
+first_url = "https://mp.weixin.qq.com/cgi-bin/searchbiz?"
+first_dict = {
+    'action': 'search_biz',
+    'token': token,
+    'lang': 'zh_CN',
+    'f': 'json',
+    'ajax': '1',
+    'random': '0.519849174288758',
+    'query': 'ithomenews',
+    'begin': '0',
+    'count': '5'
+}
+first_response = requests.get(first_url, cookies = cookie, params = first_dict)
+data = first_response.json()
+fakeid = data.get('list')[0].get('fakeid')  #debug 找fakeid
+second_dict = {
+    'token': token,
+    'lang': 'zh_CN',
+    'f': 'json',
+    'ajax': '1',
+    'random': '0.04492719835877512',
+    'action': 'list_ex',
+    'begin': '0',
+    'count': '5',
+    'query': '',
+    'fakeid': fakeid,
+    'type': '9'
+}
+second_url = "https://mp.weixin.qq.com/cgi-bin/appmsg?"
+
+second_response = requests.get(second_url, cookies = cookie, params = second_dict)
+num = int(int(second_response.json().get('app_msg_cnt'))/5)
+b = 0
+
+while num + 1 > 0:
+    second_dict = {
+        'token': token,
+        'lang': 'zh_CN',
+        'f': 'json',
+        'ajax': '1',
+        'random': random.random(),
+        'action': 'list_ex',
+        'begin': '{}'.format(str(b)),
+        'count': '5',
+        'query': '',
+        'fakeid': fakeid,
+        'type': '9'
+    }
+second_response = requests.get(second_url, cookies = cookie, params = second_dict)
+wen = second_response.json().get('app_msg_list')
+#print(wen)
+for item in wen:
+    final_url = item['link']
+    print(final_url)
+num -= 1
+b = int(b)
+b+= 5
+
+
+
+
+
+
+
+
+
