@@ -72,5 +72,5 @@ button = browser.find_element_by_class_name('btn-search')
 button.click()
 ```
 
-更多的操作可以参见官方文档的交互动作介绍  
+官方文档的交互动作介绍:  
 [http://selenium-python.readthedocs.io/api.html#module-selenium.webdriver.remote.webelement](http://selenium-python.readthedocs.io/api.html#module-selenium.webdriver.remote.webelement)
