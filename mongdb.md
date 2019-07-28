@@ -74,4 +74,36 @@ print(result)
 推荐使用 insert_one() 和 insert_many() 方法将插入单条和多条记录分开
 
 5.*查询*   
+
 利用 find_one() 或 find() 方法进行查询，find_one() 查询得到是单个结果，find() 则返回一个生成器对象。
+```
+result = collection.find_one({'name': 'Mike'})
+print(type(result))
+print(result)
+```
+运行结果：
+```
+<class 'dict'>
+{'_id': ObjectId('5932a80115c2606a59e8a049'), 'id': '20170202', 'name': 'Mike', 'age': 21, 'gender': 'male'}
+```
+可以发现它多了一个 _id 属性，这就是 MongoDB 在插入的过程中自动添加的。
+如果查询结果不存在则会返回 None。
+
+
+对于多条数据的查询，我们可以使用 find() 方法
+```
+results = collection.find({'age': 20})
+print(results)
+for result in results:
+    print(result)
+```
+```
+<pymongo.cursor.Cursor object at 0x1032d5128>
+{'_id': ObjectId('593278c115c2602667ec6bae'), 'id': '20170101', 'name': 'Jordan', 'age': 20, 'gender': 'male'}
+{'_id': ObjectId('593278c815c2602678bb2b8d'), 'id': '20170102', 'name': 'Kevin', 'age': 20, 'gender': 'male'}
+{'_id': ObjectId('593278d815c260269d7645a8'), 'id': '20170103', 'name': 'Harden', 'age': 20, 'gender': 'male'}
+```
+返回结果是 Cursor 类型，相当于一个生成器,遍历,每一个结果都是字典类型
+
+更详细用法在可以在 MongoDB 官方文档找到：
+[https://docs.mongodb.com/manual/reference/operator/query/](https://docs.mongodb.com/manual/reference/operator/query/)
