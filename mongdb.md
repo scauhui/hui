@@ -107,3 +107,77 @@ for result in results:
 
 更详细用法在可以在 MongoDB 官方文档找到：
 [https://docs.mongodb.com/manual/reference/operator/query/](https://docs.mongodb.com/manual/reference/operator/query/)
+
+
+6*排序*   
+调用 sort() 方法，传入排序的字段及升降序标志
+```
+results = collection.find().sort('name', pymongo.ASCENDING)
+print([result['name'] for result in results])
+```
+运行结果：
+```
+['Harden', 'Jordan', 'Kevin', 'Mark', 'Mike']
+```
+调用了 pymongo.ASCENDING 指定升序，如果要降序排列可以传入 pymongo.DESCENDING
+
+7.*偏移*   
+可以利用skip() 方法偏移几个位置，比如偏移 2，就忽略前 2 个元素，得到第三个及以后的元素。
+```
+results = collection.find().sort('name', pymongo.ASCENDING).skip(2)
+print([result['name'] for result in results])
+```
+```
+['Kevin', 'Mark', 'Mike']
+```
+还可以用 limit() 方法指定要取的结果个数
+```
+results = collection.find().sort('name', pymongo.ASCENDING).skip(2).limit(2)
+print([result['name'] for result in results])
+```
+```
+['Kevin', 'Mark']
+```
+8.*更新*   
+分了 update_one() 方法和 update_many() 方法,第二个参数需要使用 $ 类型操作符作为字典的键名(关于$字符，建议google)
+
+```
+condition = {'name': 'Kevin'}
+student = collection.find_one(condition)
+student['age'] = 26
+result = collection.update_one(condition, {'$set': student})
+print(result)
+print(result.matched_count, result.modified_count)
+```
+调用了 update_one() 方法，第二个参数不能再直接传入修改后的字典，而是需要使用 {'$set': student} 这样的形式，其返回结果是 UpdateResult 类型，然后调用 matched_count 和 modified_count 属性分别可以获得匹配的数据条数和影响的数据条数。
+```
+<pymongo.results.UpdateResult object at 0x10d17b678>
+1 0
+```
+调用 update_many() 方法，则会将所有符合条件的数据都更新
+
+
+9.*删除*   
+直接调用 remove() 方法指定删除的条件,符合条件的所有数据均会被删除
+```
+result = collection.remove({'name': 'Kevin'})
+print(result)
+```
+```
+{'ok': 1, 'n': 1}
+```
+delete_one() 和 delete_many() 方法
+```
+result = collection.delete_one({'name': 'Kevin'})
+print(result)
+print(result.deleted_count)
+result = collection.delete_many({'age': {'$lt': 25}})
+print(result.deleted_count)
+```
+
+```
+<pymongo.results.DeleteResult object at 0x10e6ba4c8>
+1
+4
+```
+delete_one() 即删除第一条符合条件的数据，delete_many() 即删除所有符合条件的数据，返回结果是 DeleteResult 类型，可以调用 deleted_count 属性获取删除的数据条数。
